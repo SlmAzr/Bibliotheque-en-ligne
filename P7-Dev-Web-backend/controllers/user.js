@@ -1,10 +1,15 @@
 const { User } = require("../model/User");
 const bcrypt = require("bcrypt");
 const express = require("express");
+const jwt = require("jsonwebtoken");
+
+const usersRouter = express.Router();
+usersRouter.post("/signup", signUp);
+usersRouter.post("/login", login);
 
 async function signUp(req, res) {
   const body = req.body;
-  console.log("body:", body);
+
   const email = req.body.email;
   const password = req.body.password;
 
@@ -49,24 +54,25 @@ async function login(req, res) {
 
   res.send({
     userId: userDb._id,
-    token: "tok",
+    token: generateToken(userDb._id)
   });
 }
 
+function generateToken(dbId) {
+  const payload = {
+    userId: dbId,
+  };
+  const token = jwt.sign(payload, process.env.JWT_KEY, { expiresIn: "1d" });
+  return token;
+}
 function hashPassword(password) {
-  console.log(password);
   const salt = bcrypt.genSaltSync(10);
   const hash = bcrypt.hashSync(password, salt);
-  console.log(hash);
   return hash;
 }
 
 function isPasswordTrue(password, hash) {
   return bcrypt.compareSync(password, hash);
 }
-const usersRouter = express.Router();
-
-usersRouter.post("signup", signUp);
-usersRouter.post("login", login);
 
 module.exports = { usersRouter };
