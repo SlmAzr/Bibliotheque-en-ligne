@@ -2,15 +2,18 @@ const { Book } = require("../model/Book");
 const { upload } = require("../middlewares/multer");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const e = require("express");
+const {sharpMiddleware} = require('../middlewares/sharp');
+
+
+
 
 const booksRouter = express.Router();
 booksRouter.get("/bestrating", getBestRating);
 booksRouter.get("/", getBooks);
-booksRouter.post("/", checkToken, upload.single("image"), postBooks);
+booksRouter.post("/", checkToken, upload.single("image"),sharpMiddleware,postBooks);
 booksRouter.get("/:id", getBooksId);
 booksRouter.delete("/:id", checkToken, deleteBook);
-booksRouter.put("/:id", checkToken, upload.single("image"), putBooks);
+booksRouter.put("/:id", checkToken, upload.single("image"), sharpMiddleware,putBooks);
 booksRouter.post("/:id/rating", checkToken, postRating);
 
 function checkToken(req, res, next) {
@@ -178,4 +181,7 @@ function calculateAverageRating(ratings) {
   return somme / length;
 }
 
+// Book.deleteMany({}).then(()=>{
+//   console.log("books deleted");
+// })
 module.exports = { booksRouter };
