@@ -2,18 +2,27 @@ const { Book } = require("../model/Book");
 const { upload } = require("../middlewares/multer");
 const express = require("express");
 const jwt = require("jsonwebtoken");
-const {sharpMiddleware} = require('../middlewares/sharp');
-
-
-
+const { sharpMiddleware } = require("../middlewares/sharp");
 
 const booksRouter = express.Router();
 booksRouter.get("/bestrating", getBestRating);
 booksRouter.get("/", getBooks);
-booksRouter.post("/", checkToken, upload.single("image"),sharpMiddleware,postBooks);
+booksRouter.post(
+  "/",
+  checkToken,
+  upload.single("image"),
+  sharpMiddleware,
+  postBooks
+);
 booksRouter.get("/:id", getBooksId);
 booksRouter.delete("/:id", checkToken, deleteBook);
-booksRouter.put("/:id", checkToken, upload.single("image"), sharpMiddleware,putBooks);
+booksRouter.put(
+  "/:id",
+  checkToken,
+  upload.single("image"),
+  sharpMiddleware,
+  putBooks
+);
 booksRouter.post("/:id/rating", checkToken, postRating);
 
 function checkToken(req, res, next) {
@@ -118,7 +127,7 @@ async function putBooks(req, res) {
     if (book.author) newBook.author = book.author;
     if (book.year) newBook.year = book.year;
     if (book.genre) newBook.genre = book.genre;
-    if (req.file == null) {
+    if (req.file != null) {
       newBook.imageUrl = req.file.filename;
     }
 
@@ -178,10 +187,10 @@ async function postRating(req, res) {
 function calculateAverageRating(ratings) {
   const length = ratings.length;
   const somme = ratings.reduce((sum, rating) => sum + rating.grade, 0);
-  return somme / length;
+  const moyenne = somme / length;
+  const moyenneArrondie = moyenne.toFixed(2);
+
+  return parseFloat(moyenneArrondie);
 }
 
-// Book.deleteMany({}).then(()=>{
-//   console.log("books deleted");
-// })
 module.exports = { booksRouter };
